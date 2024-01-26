@@ -1,0 +1,79 @@
+class Lonning(): 
+    day_types = {
+    
+        1: "ukedag",
+        2: "lordag",
+        3: "sondag"
+    }
+
+    def __init__(self, navn, timelonn): 
+            self.navn = navn
+            self.timelonn = int(timelonn)
+            self.tilleggukedag = {}
+            self.tillegglordag = {}
+            self.tilleggsondag = {}
+            for i in range(24): 
+                self.tilleggukedag[i] = self.timelonn
+                self.tillegglordag[i] = self.timelonn
+                self.tilleggsondag[i] = self.timelonn
+
+    def tilleggsDannelse(self, arbeidsdag: int, arbeidstid: tuple, tillegg: tuple):
+        
+            #Lagrer arbeidsdag som int for å    
+             
+            arbeidstid1 = int(arbeidstid[0])
+            arbeidstid2 = int(arbeidstid[1])
+            daytype = self.day_types[arbeidsdag]
+            daytypedict = getattr(self, f"tillegg{daytype}")
+
+                
+            if (arbeidstid2 - arbeidstid1) < 0: 
+                for i in range(arbeidstid1, 24): 
+                    if tillegg[1] == "%": 
+                        daytypedict[i] = self.timelonn*((int(tillegg[0])/100) + 1)
+                    else: 
+                        daytypedict[i] = self.timelonn+tillegg[0]
+                for i in range(0, arbeidstid2): 
+                    if tillegg[1] == "%": 
+                        daytypedict[i] = self.timelonn*((int(tillegg[0])/100) + 1)
+                    else: 
+                        daytypedict[i] = self.timelonn+tillegg[0]
+            else: 
+                for i in range(arbeidstid1, arbeidstid2): 
+                    if tillegg[1] == "%": 
+                        daytypedict[i] = self.timelonn*((int(tillegg[0])/100) + 1)
+                    else: 
+                        daytypedict[i] = self.timelonn+tillegg[0]
+            out = f"Lagt til {tillegg[0]}{tillegg[1]} tillegg på {daytype} fra {arbeidstid1} til {arbeidstid2}"
+            return out
+        
+
+
+        
+    
+    def kalkulator(self, dag: int, tid: tuple()): 
+        sum = 0
+        start = int(tid[1])
+        slutt = int(tid[2])
+        daytype = self.day_types[dag]
+        daytypedict = getattr(self, f"tillegg{daytype}")
+
+        if (slutt-start) > 5.5: 
+            if slutt-start < 0: 
+                for i in range(start, 24): 
+                    sum += daytypedict[i]
+                for i in range(0, slutt): 
+                    sum += daytypedict[i]
+                sum -= (daytypedict[(start+4)] / 2)
+            else: 
+                for i in range(start, slutt): 
+                    sum += daytypedict[i]
+                    sum -= (daytypedict[(start+4)] / 2)
+        
+        else: 
+            if slutt-start < 0: 
+                for i in range(start, 24): 
+                    sum += daytypedict[i]
+                for i in range(0, slutt): 
+                    sum += daytypedict[i]
+        return sum
